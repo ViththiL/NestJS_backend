@@ -28,11 +28,9 @@ jobs:
         run: npm run build
 
       - name: Run NestJS application
-        run: npm run start &
-        shell: powershell
-
-      - name: Wait for the application to start
-        run: Start-Sleep -Seconds 20
+        run: |
+          npm run start
+          Start-Sleep -Seconds 10
 
   deploy:
     runs-on: windows-latest
