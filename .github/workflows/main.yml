@@ -4,8 +4,6 @@ on:
   push:
     branches:
       - '**'
-    tags:
-      - '**'
   pull_request:
     branches:
       - '**'
@@ -21,7 +19,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 15
+          node-version: 16
 
       - name: Install dependencies
         run: npm install
@@ -31,10 +29,10 @@ jobs:
 
       - name: Run NestJS application
         run: npm run start &
-        shell: bash
+        shell: powershell
 
       - name: Wait for the application to start
-        run: sleep 20
+        run: Start-Sleep -Seconds 20
 
   deploy:
     runs-on: windows-latest
@@ -42,16 +40,28 @@ jobs:
     needs: build
 
     steps:
-      - name: Debug - List artifacts
-        run: ls -R
+      - name: Debug - List workspace
+        run: Get-ChildItem -Recurse
 
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
+
+  s3:
+    runs-on: windows-latest
+
+    needs: deploy
+
+    steps:
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
           name: dist
 
       - name: Debug - List downloaded artifacts
-        run: ls -R
+        run: Get-ChildItem -Recurse dist
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
