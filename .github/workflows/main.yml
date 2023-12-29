@@ -54,17 +54,23 @@ jobs:
     needs: deploy
 
     steps:
+      - name: Debug - List artifacts
+        run: ls dist
+
       - name: Download artifacts
         uses: actions/download-artifact@v2
         with:
           name: dist
+
+      - name: Debug - List downloaded artifacts
+        run: ls dist
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: your-s3-region
+          aws-region: "Asia Pacific (Singapore) ap-southeast-1"
 
       - name: Upload to S3
         run: aws s3 cp dist s3://${{ secrets.AWS_BUCKET }}/ --recursive
