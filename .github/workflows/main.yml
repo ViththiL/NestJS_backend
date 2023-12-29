@@ -1,4 +1,4 @@
-name: Build and Deploy
+name: CI/CD Pipeline
 
 on:
   push:
@@ -9,9 +9,33 @@ on:
       - '**'
 
 jobs:
-  build:
+  build-and-test:
     runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
 
+      - name: Build the application
+        run: npm run build
+      
+      # This step is for running tests. Adjust the command to match your test script.
+      # Ensure your test environment can handle starting and stopping the server.
+      - name: Run tests
+        run: npm test
+
+  deploy:
+    runs-on: windows-latest
+    needs: build-and-test # This job will only run if the build-and-test job completes successfully
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Only run on push to main branch
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -20,51 +44,20 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
-      - name: Build and test
+      - name: Build the application
         run: npm run build
-
-      - name: Run NestJS application
-        run: npm run start:prod
-        env:
-          NODE_ENV: production
-
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    if: github.ref == 'refs/heads/main' # Ensures that deployment happens only on the main branch
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: dist
-
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: dist
-          path: dist
-
-  s3:
-    runs-on: windows-latest
-    needs: deploy
-    if: github.ref == 'refs/heads/main' # Ensures that S3 upload happens only on the main branch
-
-    steps:
-      - name: Set up AWS CLI
+      
+      - name: Upload build to AWS S3
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: 'Asia Pacific (Singapore) ap-southeast-1'
-
-      - name: Upload to S3
-        run: aws s3 cp dist s3://${{ secrets.AWS_BUCKET }}/ --recursive
+      
+      - name: Sync files to S3
+        run: aws s3 sync ./dist s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+        # --delete will remove files in the bucket that are not in the ./dist folder
