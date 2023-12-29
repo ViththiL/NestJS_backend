@@ -57,5 +57,5 @@ jobs:
           aws-region: 'ap-southeast-1' # Corrected region format
       
       - name: Sync files to S3
-        run: aws s3 sync ./dist s3://${{ secrets.AWS_BUCKET_NAME }} --delete
+        run: aws s3 sync ./dist s3://${{ secrets.AWS_BUCKET }} --delete
         # --delete removes files in the bucket that are not in the ./dist folder
