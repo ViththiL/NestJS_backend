@@ -42,20 +42,8 @@ jobs:
     needs: build
 
     steps:
-      - name: Store artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: dist
-          path: dist
-
-  s3:
-    runs-on: windows-latest
-
-    needs: deploy
-
-    steps:
       - name: Debug - List artifacts
-        run: ls dist
+        run: ls -R
 
       - name: Download artifacts
         uses: actions/download-artifact@v2
@@ -63,7 +51,7 @@ jobs:
           name: dist
 
       - name: Debug - List downloaded artifacts
-        run: ls dist
+        run: ls -R
 
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
