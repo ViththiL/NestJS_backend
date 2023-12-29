@@ -30,7 +30,11 @@ jobs:
         run: npm run build
 
       - name: Run NestJS application
-        run: npm run start
+        run: npm run start &
+        shell: bash
+
+      - name: Wait for the application to start
+        run: sleep 20
 
   deploy:
     runs-on: windows-latest
@@ -38,9 +42,6 @@ jobs:
     needs: build
 
     steps:
-      - name: Wait for the application to start
-        run: Start-Sleep -Seconds 10
-
       - name: Store artifacts
         uses: actions/upload-artifact@v2
         with:
