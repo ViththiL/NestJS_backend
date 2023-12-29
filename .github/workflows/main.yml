@@ -35,7 +35,6 @@ jobs:
   deploy:
     runs-on: windows-latest
     needs: build-and-test # This job will only run if the build-and-test job completes successfully
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push' # Only run on push to main branch
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
