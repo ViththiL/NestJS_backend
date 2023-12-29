@@ -19,27 +19,33 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: '16'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build and test
         run: npm run build
 
       - name: Run NestJS application
-        run: |
-          npm run start
-          Start-Sleep -Seconds 10
+        run: npm run start:prod
+        env:
+          NODE_ENV: production
 
   deploy:
     runs-on: windows-latest
-
     needs: build
+    if: github.ref == 'refs/heads/main' # Ensures that deployment happens only on the main branch
 
     steps:
-      - name: Debug - List workspace
-        run: Get-ChildItem -Recurse
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
 
       - name: Store artifacts
         uses: actions/upload-artifact@v2
@@ -49,24 +55,16 @@ jobs:
 
   s3:
     runs-on: windows-latest
-
     needs: deploy
+    if: github.ref == 'refs/heads/main' # Ensures that S3 upload happens only on the main branch
 
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v2
-        with:
-          name: dist
-
-      - name: Debug - List downloaded artifacts
-        run: Get-ChildItem -Recurse dist
-
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "Asia Pacific (Singapore) ap-southeast-1"
+          aws-region: 'Asia Pacific (Singapore) ap-southeast-1'
 
       - name: Upload to S3
         run: aws s3 cp dist s3://${{ secrets.AWS_BUCKET }}/ --recursive
