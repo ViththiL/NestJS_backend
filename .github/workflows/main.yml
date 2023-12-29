@@ -1,4 +1,4 @@
-name: NestJS CI
+name: Build and Deploy
 
 on:
   push:
@@ -15,37 +15,55 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout code
         uses: actions/checkout@v2
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v3
         with:
           node-version: 14
 
-      - name: Install Dependencies
+      - name: Install dependencies
         run: npm install
-        working-directory: ./NEST_JS # Use the correct directory name
 
-      - name: Build Nest.js App
+      - name: Build and test
         run: npm run build
-        working-directory: ./NEST_JS # Use the correct directory name
+
+      - name: Run NestJS application
+        run: npm run start
 
   deploy:
-    needs: build
     runs-on: windows-latest
 
+    needs: build
+
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v2
+      - name: Wait for the application to start
+        run: Start-Sleep -Seconds 10
 
-    # Add additional steps for testing or other checks
+      - name: Store artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dist
+          path: dist
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+  s3:
+    runs-on: windows-latest
+
+    needs: deploy
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v2
+        with:
+          name: dist
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: your-aws-region # Replace with your AWS region
+          aws-region: your-s3-region
 
-      # Add steps for deploying to AWS or storing data in AWS services
+      - name: Upload to S3
+        run: aws s3 cp dist s3://${{ secrets.AWS_BUCKET }}/ --recursive
