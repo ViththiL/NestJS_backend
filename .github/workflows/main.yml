@@ -40,4 +40,4 @@ jobs:
         aws-region: 'ap-southeast-1' # Use your AWS region
 
     - name: Upload the binary to Amazon S3
-      run: aws s3 cp ./dist/your-binary-name s3://${{ secrets.AWS_BUCKET }}/dist/main --acl public-read
+      run: aws s3 cp ./dist/main s3://${{ secrets.AWS_BUCKET }}/dist/main --acl public-read
