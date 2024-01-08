@@ -32,6 +32,9 @@ jobs:
     - name: Generate Binary
       run: npm run package
 
+    - name: List output files
+      run: ls ./dist
+
     - name: Configure AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
       with:
@@ -40,4 +43,4 @@ jobs:
         aws-region: 'ap-southeast-1' # Use your AWS region
 
     - name: Upload the binary to Amazon S3
-      run: aws s3 cp ./dist/main s3://${{ secrets.AWS_BUCKET }}/dist/main --acl public-read
+      run: aws s3 cp ./dist/main.exe s3://${{ secrets.AWS_BUCKET }}/dist/main.exe --acl public-read
