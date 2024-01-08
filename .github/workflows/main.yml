@@ -23,12 +23,15 @@ jobs:
     - name: Install dependencies
       run: npm install
 
+    - name: Install pkg globally
+      run: npm install -g pkg
+
     - name: Build
       run: npm run build
 
     - name: Generate Binary
-      run: npm run package  # This will generate the binary
-
+      run: npm run package
+      
     - name: Upload to Amazon S3
       uses: jakejarvis/s3-sync-action@master
       with:
