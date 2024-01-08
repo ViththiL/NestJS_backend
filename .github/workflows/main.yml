@@ -39,5 +39,5 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: 'ap-southeast-1' # Use your AWS region
 
-    - name: Upload the dist folder to Amazon S3
-      run: aws s3 sync ./dist/ s3://${{ secrets.AWS_BUCKET }}/dist/ --acl public-read
+    - name: Upload the binary to Amazon S3
+      run: aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/dist/my-app.exe --acl public-read
