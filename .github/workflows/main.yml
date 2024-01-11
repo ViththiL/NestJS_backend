@@ -36,5 +36,12 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: 'ap-southeast-1' # Use your AWS region
 
+    - name: Extract tag name
+      id: get_tag
+      run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF##*/})"
+      shell: bash
+
     - name: Upload the binary to Amazon S3
-      run: aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/dist/my-app.exe --acl public-read
+      run: |
+        TAG_NAME=${{ steps.get_tag.outputs.tag }}
+        aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/${TAG_NAME}/dist/my-app.exe --acl public-read
