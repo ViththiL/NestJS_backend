@@ -38,10 +38,8 @@ jobs:
 
     - name: Extract tag name
       id: get_tag
-      run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF##*/})"
-      shell: bash
+      run: echo "TAG_NAME=$(echo ${GITHUB_REF##*/})" >> $GITHUB_ENV
+      shell: bash      
 
     - name: Upload the binary to Amazon S3
-      run: |
-        TAG_NAME=${{ steps.get_tag.outputs.tag }}
-        aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/${TAG_NAME}/dist/my-app.exe --acl public-read
+      run: aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/${{ env.TAG_NAME }}/dist/my-app.exe --acl public-read
