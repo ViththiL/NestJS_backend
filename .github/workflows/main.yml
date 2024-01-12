@@ -27,7 +27,7 @@ jobs:
       run: npm run build
 
     - name: Generate Binary
-      run: npm run package
+      run: npm run build
 
     - name: Configure AWS CLI
       uses: aws-actions/configure-aws-credentials@v1
