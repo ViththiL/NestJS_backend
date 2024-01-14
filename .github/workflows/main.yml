@@ -42,4 +42,4 @@ jobs:
       shell: bash      
 
     - name: Upload the binary to Amazon S3
-      run: aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/${{ env.TAG_NAME }}/dist/my-app.exe --acl public-read
+      run: aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/${{ env.TAG_NAME }}/back_end/my-app.exe --acl public-read
