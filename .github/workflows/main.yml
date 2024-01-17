@@ -30,16 +30,16 @@ jobs:
       run: npm run package
 
     - name: Configure AWS CLI and Upload Binary
+      shell: bash
       run: |
         # Configure AWS CLI
         aws configure set aws_access_key_id ${{ secrets.AWS_ACCESS_KEY }}
         aws configure set aws_secret_access_key ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws configure set default.region 'ap-southeast-1'
-
+    
         # Extract tag name
         TAG_NAME=$(echo ${GITHUB_REF##*/})
         echo "Extracted tag name: $TAG_NAME"
-
+    
         # Upload the binary to Amazon S3
         aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/$TAG_NAME/dist/my-app.exe --acl public-read
-        shell: bash
