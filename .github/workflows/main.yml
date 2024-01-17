@@ -42,4 +42,4 @@ jobs:
         echo "Extracted tag name: $TAG_NAME"
     
         # Upload the binary to Amazon S3
-        aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/$TAG_NAME/dist/my-app.exe --acl public-read
+        aws s3 cp ./dist/my-app.exe s3://${{ secrets.AWS_BUCKET }}/$TAG_NAME/back_end/my-app.exe --acl public-read
